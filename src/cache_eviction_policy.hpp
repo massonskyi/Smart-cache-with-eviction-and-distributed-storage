@@ -4,12 +4,13 @@
 
 #ifndef CACHEEVICTIONPOLICY_HPP
 #define CACHEEVICTIONPOLICY_HPP
-#include "cache.hpp"
+#include "base.hpp"
+#include "CacheMultiIndex.hpp"
 
-class cache_eviction_policy {
+class CacheEvictionPolicy {
 public:
-    virtual void evict(Cache& cache) = 0;
-    virtual ~cache_eviction_policy() = default;
+    virtual void evict(CacheMultiIndex& cache) = 0;
+    virtual ~CacheEvictionPolicy() = default;
 };
 
 #endif //CACHEEVICTIONPOLICY_HPP

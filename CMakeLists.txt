@@ -20,8 +20,19 @@ add_executable(
         SEDSCache
         main.cpp
         src/cache_item.hpp
-        src/cache.hpp
+        src/base_cache.hpp
         src/cache_eviction_policy.hpp
+        src/cache.hpp
+        src/lru_eviction_policy.hpp
+        src/lfu_eviction_policy.hpp
+        src/fifo_eviction_policy.hpp
+        src/base.hpp
+        src/CacheMultiIndex.hpp
+        src/cache_server.hpp
+        src/cache_client.hpp
+        src/hash_util.hpp
+        src/replication.hpp
+        src/distributed_cache.hpp
 )
 
 target_link_libraries(SEDSCache ${Boost_LIBRARIES})
