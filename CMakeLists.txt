@@ -11,6 +11,14 @@ if (Boost_FOUND)
 else()
     message(FATAL_ERROR "Boost not found!")
 endif()
+find_package(cpprestsdk REQUIRED)
+if (cpprestsdk_FOUND)
+    include_directories(${Boost_INCLUDE_DIRS})
+    link_directories(${Boost_LIBRARY_DIRS})
+else()
+    message(FATAL_ERROR "Boost not found!")
+endif()
+
 
 include_directories(${Boost_INCLUDE_DIRS})
 
@@ -33,6 +41,8 @@ add_executable(
         src/hash_util.hpp
         src/replication.hpp
         src/distributed_cache.hpp
+        src/cache_server_api.hpp
+        src/cache_gui.hpp
 )
 
-target_link_libraries(SEDSCache ${Boost_LIBRARIES})
+target_link_libraries(SEDSCache ${Boost_LIBRARIES} cpprest)
