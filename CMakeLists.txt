@@ -4,29 +4,31 @@ project(SEDSCache)
 set(CMAKE_CXX_STANDARD 20)
 
 find_package(Boost REQUIRED)
-
+find_package(cpprestsdk REQUIRED)
+find_package(Python3 REQUIRED)
 if (Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})
     link_directories(${Boost_LIBRARY_DIRS})
 else()
     message(FATAL_ERROR "Boost not found!")
 endif()
-find_package(cpprestsdk REQUIRED)
+
 if (cpprestsdk_FOUND)
-    include_directories(${Boost_INCLUDE_DIRS})
-    link_directories(${Boost_LIBRARY_DIRS})
+    include_directories(${cpprestsdk_INCLUDE_DIRS})
+    link_directories(${cpprestsdk_LIBRARY_DIRS})
 else()
-    message(FATAL_ERROR "Boost not found!")
+    message(FATAL_ERROR "cpprestsdk not found!")
 endif()
 
-
-include_directories(${Boost_INCLUDE_DIRS})
-
+if (Python3_FOUND)
+    message(STATUS "Found Python3: ${Python3_EXECUTABLE}")
+else()
+    message(FATAL_ERROR "Python3 not found!")
+endif()
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
-add_executable(
-        SEDSCache
-        main.cpp
+# Add this to your CMakeLists.txt
+add_library(local_cache SHARED
         src/cache_item.hpp
         src/base_cache.hpp
         src/cache_eviction_policy.hpp
@@ -36,13 +38,30 @@ add_executable(
         src/fifo_eviction_policy.hpp
         src/base.hpp
         src/CacheMultiIndex.hpp
+        src/hash_util.hpp
+        src/local_cache.cpp
+)
+
+set_target_properties(local_cache PROPERTIES
+        LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
+)
+
+# Create a library for remote server-client operations
+add_library(remote_cache
         src/cache_server.hpp
         src/cache_client.hpp
-        src/hash_util.hpp
         src/replication.hpp
         src/distributed_cache.hpp
         src/cache_server_api.hpp
-        src/cache_gui.hpp
+        src/remote_cache.cpp  # Dummy source file
 )
 
-target_link_libraries(SEDSCache ${Boost_LIBRARIES} cpprest)
+set_target_properties(remote_cache PROPERTIES
+        LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
+)
+# Link the libraries to the main executable
+add_executable(SEDSCache main.cpp)
+
+target_link_libraries(local_cache ${Boost_LIBRARIES})
+target_link_libraries(remote_cache ${Boost_LIBRARIES} cpprest)
+target_link_libraries(SEDSCache local_cache remote_cache)
